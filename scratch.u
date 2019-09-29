@@ -1,0 +1,30 @@
+host = base.Optional.Some (base.io.HostName "0.0.0.0")
+sn = base.io.ServiceName "8081"
+
+textToBytes : base.Text -> base.Bytes
+textToBytes t =
+  c = base.Text.toCharList t
+  n = base.List.map base.Char.toNat c
+  base.Bytes.fromList n
+
+
+bytesToText : base.Bytes -> base.Text
+bytesToText b =
+  n = base.Bytes.toList b
+  c = base.List.map base.Char.fromNat n
+  base.Text.fromCharList c
+
+
+main : '{base.io.IO} ()
+main = 'let
+  sock = base.io.serverSocket host sn
+  base.io.listen sock
+  s = base.io.accept sock
+  t = base.io.receive s 1024
+  tt = case t of
+    base.Optional.None -> "none"
+    base.Optional.Some x -> bytesToText x
+  base.io.printLine tt
+  base.io.send s (textToBytes "HTTP/1.0 200 OK\n\nHello!")
+  base.io.closeSocket s
+  base.io.closeSocket sock
