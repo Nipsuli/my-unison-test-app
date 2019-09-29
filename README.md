@@ -24,3 +24,5 @@ More info in [quick start](https://www.unisonweb.org/docs/tour/hello-ucm/)
 Unison watches all `*.u` files
 
 In `ucm` use `view [definition]` such as `view base.Test.Result` to see definition
+
+Check also [Unison Codebase Explorer](https://github.com/unisonweb/elm-browser)

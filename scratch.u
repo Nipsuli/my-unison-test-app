@@ -7,24 +7,42 @@ textToBytes t =
   n = base.List.map base.Char.toNat c
   base.Bytes.fromList n
 
-
 bytesToText : base.Bytes -> base.Text
 bytesToText b =
   n = base.Bytes.toList b
   c = base.List.map base.Char.fromNat n
   base.Text.fromCharList c
 
+handler : base.Text ->{base.io.IO} base.Text
+handler t =
+  -- how to return status as well nicely
+  -- how to route requests
+  -- parse headers etc
+  base.io.printLine t
+  "Hello"
+
+listen : base.io.Socket ->{base.io.IO} ()
+listen sock =
+  base.io.printLine "listen"
+  s = base.io.accept sock
+  -- should loop and receive whole request when large
+  t = base.io.receive s 1024
+  tt = case t of
+    base.Optional.None -> ""
+    base.Optional.Some x -> bytesToText x
+  res = handler tt
+  status = base.Nat.toText 200
+  -- get status description from map
+  base.io.send s (textToBytes ("HTTP/1.0 " ++ status ++  "OK\n\n" ++ res))
+  base.io.closeSocket s
+  listen sock
 
 main : '{base.io.IO} ()
 main = 'let
+  base.io.printLine "start"
   sock = base.io.serverSocket host sn
   base.io.listen sock
-  s = base.io.accept sock
-  t = base.io.receive s 1024
-  tt = case t of
-    base.Optional.None -> "none"
-    base.Optional.Some x -> bytesToText x
-  base.io.printLine tt
-  base.io.send s (textToBytes "HTTP/1.0 200 OK\n\nHello!")
-  base.io.closeSocket s
+  listen sock
+  -- how to capture signals and end nicely
+  base.io.printLine "end"
   base.io.closeSocket sock
