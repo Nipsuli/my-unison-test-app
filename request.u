@@ -1,0 +1,77 @@
+unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
+
+type Request = {
+    method: HttpMethod,
+    path: base.Text,
+    headers: base.Map base.Text base.Text,
+    body: base.Optional base.Text
+}
+
+parseMethod : base.Text -> base.Optional HttpMethod
+parseMethod methodText = case methodText of
+    "GET" -> base.Optional.Some GET
+    "HEAD" -> base.Optional.Some HEAD
+    "POST" -> base.Optional.Some POST
+    "PUT" -> base.Optional.Some PUT
+    "DELETE" -> base.Optional.Some DELETE
+    "CONNECT" -> base.Optional.Some CONNECT
+    "OPTIONS" -> base.Optional.Some OPTIONS
+    "TRACE" -> base.Optional.Some TRACE
+    "PATCH" -> base.Optional.Some PATCH
+    _ -> base.Optional.None
+
+
+
+parseRequest : base.Text -> Request
+parseRequest requestText =
+    h = base.Map ["foo"] ["bar"]
+    b = Some "body"
+    Request PUT "/foobar" h b
+
+-- type Pt = {
+--     x : base.Nat,
+--     y : base.Nat
+-- }
+-- -- > Pt 1 2
+
+-- main =
+--     h = base.Map ["foo"] ["bar"]
+--     b = Some "body"
+--     r = Request PUT "/foobar" h b
+--     Request.headers r
+
+
+-- splitter : base.List base.Char -> base.List base.Char -> base.List base.Char -> base.List base.List base.Char
+-- splitter separator current rest =
+    -- separator is the separating pattern
+    -- current is the checked non matching characters
+    -- rest is the remaining characters
+    -- check if rest starts with separator
+    -- if it does return current ++ splitter separator [] (rest without the match part)
+    -- if it doesn't splitter separator (current ++ (head rest) ) tail rest
+
+head : base.List t -> base.Optional t
+head l =
+    case base.List.uncons l of
+        base.Optional.Some (a, _) -> base.Optional.Some a
+        base.Optional.None -> None
+
+
+tail : base.List t -> base.List t
+tail l =
+    case base.List.uncons l of
+        base.Optional.Some (_, b) -> b
+        base.Optional.None -> []
+
+
+splitText : base.Text -> base.Text -> base.List base.Text
+splitText text separator =
+    ["foo", "bar"]
+
+
+> case base.List.uncons [] of
+    base.Optional.Some (a, _) -> a
+    -- base.Optional.Some (_, []) -> "found empty"
+    -- base.Optional.Some (_, b) -> "found b"
+    base.Optional.None -> "found none"
+    _ -> "WOOT"
