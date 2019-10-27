@@ -2,6 +2,7 @@
 
 Just playing around with [The Unison language](https://github.com/unisonweb/unison)
 
+Trying to build simple HTTP server.
 
 ## How to run unison
 
