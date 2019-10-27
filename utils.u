@@ -1,6 +1,9 @@
 use .base
 use test.v1
 
+---
+-- Keeping references here
+
 textToBytes : Text -> Bytes
 textToBytes t =
   c = Text.toCharList t
@@ -28,8 +31,9 @@ test> tests.textLength.ex3 = run (expect (textLength "foobär" == 6))
 
 startsWith : Text -> Text -> Boolean
 startsWith needle haystack =
-  and ((textLength haystack) > (textLength needle))
-    ((Text.take (textLength needle) haystack) == needle)
+  case ((textLength haystack) > (textLength needle)) of
+    true -> ((Text.take (textLength needle) haystack) == needle)
+    _ -> false
 
 test> tests.startsWith.ex1 = run (expect (startsWith "foobar" "foo" == false))
 test> tests.startsWith.ex2 = run (expect (startsWith "foo" "foobar" == true))
@@ -42,46 +46,18 @@ head l =
       Optional.Some (a, _) -> Optional.Some a
       Optional.None -> None
 
+test> tests.head.ex1 = run (expect (head [] == Optional.None))
+test> tests.head.ex2 = run (expect (head ["foo"] == Optional.Some "foo"))
+test> tests.head.ex3 = run (expect (head ["bar", "foo"] == Optional.Some "bar"))
+
+
 tail : List t -> List t
 tail l =
   case List.uncons l of
       Optional.Some (_, b) -> b
       Optional.None -> []
 
-
-
--- splitter : List Char -> List Char -> List Char -> List List Char
--- splitter separator current rest =
-  -- case rest of
-    -- separator ++ _
-  -- separator is the separating pattern
-  -- current is the checked non matching characters
-  -- rest is the remaining characters
-  -- check if rest starts with separator
-  -- if it does return current ++ splitter separator [] (rest without the match part)
-  -- if it doesn't splitter separator (current ++ (head rest) ) tail rest
-
-
---
--- main =
---   a = Text.toCharList "foo bar"
---   case a of
---     [?f, ?o, ?o] ++ _ -> "starts with foo"
---     _ -> "does not start with foo"
-
-
--- > main2
-
--- main =
---   a = "foo bar"
---   case a of
---     "foo" ++ b -> "starts with foo"
---     _ -> "not starts with foo"
-
--- > "foo" ++ "bar"
-
---
---
--- splitText : Text -> Text -> List Text
--- splitText text separator =
---   ["foo", "bar"]
+test> tests.tail.ex1 = run (expect (tail [] == []))
+test> tests.tail.ex2 = run (expect (tail ["foo"] == []))
+test> tests.tail.ex3 = run (expect (tail ["bar", "foo"] == ["foo"]))
+test> tests.tail.ex4 = run (expect (tail ["bar", "foo", "baz"] == ["foo", "baz"]))

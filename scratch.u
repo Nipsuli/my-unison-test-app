@@ -1,38 +1,38 @@
-host = base.Optional.Some (base.io.HostName "0.0.0.0")
-sn = base.io.ServiceName "8081"
-
-
-handler : base.Text -> base.Text
-handler t =
-  -- how to return status as well nicely
-  -- how to route requests
-  -- parse headers etc
-  "Hello"
-
-listen : base.io.Socket ->{base.io.IO} ()
-listen sock =
-  base.io.printLine "listen"
-  s = base.io.accept sock
-  -- How to manage different sizes of bodies?
-  t = base.io.receive s 1024
-  tt = case t of
-    base.Optional.None -> ""
-    base.Optional.Some x -> bytesToText x
-  base.io.printLine tt
-  res = handler tt
-  status = base.Nat.toText 200
-  -- get status description from map
-  -- build content lenght etc stuff
-  base.io.send s (textToBytes ("HTTP/1.0 " ++ status ++  "OK\n\n" ++ res))
-  base.io.closeSocket s
-  listen sock
-
-main : '{base.io.IO} ()
-main = 'let
-  base.io.printLine "start"
-  sock = base.io.serverSocket host sn
-  base.io.listen sock
-  listen sock
-  -- how to capture signals and end nicely
-  base.io.printLine "end"
-  base.io.closeSocket sock
+-- host = base.Optional.Some (base.io.HostName "0.0.0.0")
+-- sn = base.io.ServiceName "8081"
+--
+--
+-- handler : base.Text -> base.Text
+-- handler t =
+--   -- how to return status as well nicely
+--   -- how to route requests
+--   -- parse headers etc
+--   "Hello"
+--
+-- listen : base.io.Socket ->{base.io.IO} ()
+-- listen sock =
+--   base.io.printLine "listen"
+--   s = base.io.accept sock
+--   -- How to manage different sizes of bodies?
+--   t = base.io.receive s 1024
+--   tt = case t of
+--     base.Optional.None -> ""
+--     base.Optional.Some x -> bytesToText x
+--   base.io.printLine tt
+--   res = handler tt
+--   status = base.Nat.toText 200
+--   -- get status description from map
+--   -- build content lenght etc stuff
+--   base.io.send s (textToBytes ("HTTP/1.0 " ++ status ++  "OK\n\n" ++ res))
+--   base.io.closeSocket s
+--   listen sock
+--
+-- main : '{base.io.IO} ()
+-- main = 'let
+--   base.io.printLine "start"
+--   sock = base.io.serverSocket host sn
+--   base.io.listen sock
+--   listen sock
+--   -- how to capture signals and end nicely
+--   base.io.printLine "end"
+--   base.io.closeSocket sock

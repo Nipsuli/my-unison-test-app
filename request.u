@@ -1,32 +1,32 @@
-unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
-
-type Request = {
-    method: HttpMethod,
-    path: base.Text,
-    headers: base.Map base.Text base.Text,
-    body: base.Optional base.Text
-}
-
-parseMethod : base.Text -> base.Optional HttpMethod
-parseMethod methodText = case methodText of
-    "GET" -> base.Optional.Some GET
-    "HEAD" -> base.Optional.Some HEAD
-    "POST" -> base.Optional.Some POST
-    "PUT" -> base.Optional.Some PUT
-    "DELETE" -> base.Optional.Some DELETE
-    "CONNECT" -> base.Optional.Some CONNECT
-    "OPTIONS" -> base.Optional.Some OPTIONS
-    "TRACE" -> base.Optional.Some TRACE
-    "PATCH" -> base.Optional.Some PATCH
-    _ -> base.Optional.None
-
-
-
-parseRequest : base.Text -> Request
-parseRequest requestText =
-    h = base.Map ["foo"] ["bar"]
-    b = Some "body"
-    Request PUT "/foobar" h b
+-- unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
+--
+-- type Request = {
+--     method: HttpMethod,
+--     path: base.Text,
+--     headers: base.Map base.Text base.Text,
+--     body: base.Optional base.Text
+-- }
+--
+-- parseMethod : base.Text -> base.Optional HttpMethod
+-- parseMethod methodText = case methodText of
+--     "GET" -> base.Optional.Some GET
+--     "HEAD" -> base.Optional.Some HEAD
+--     "POST" -> base.Optional.Some POST
+--     "PUT" -> base.Optional.Some PUT
+--     "DELETE" -> base.Optional.Some DELETE
+--     "CONNECT" -> base.Optional.Some CONNECT
+--     "OPTIONS" -> base.Optional.Some OPTIONS
+--     "TRACE" -> base.Optional.Some TRACE
+--     "PATCH" -> base.Optional.Some PATCH
+--     _ -> base.Optional.None
+--
+--
+--
+-- parseRequest : base.Text -> Request
+-- parseRequest requestText =
+--     h = base.Map ["foo"] ["bar"]
+--     b = Some "body"
+--     Request PUT "/foobar" h b
 
 -- type Pt = {
 --     x : base.Nat,
