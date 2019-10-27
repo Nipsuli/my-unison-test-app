@@ -1,6 +1,6 @@
 use .base
 use test.v1
--- utils namespace
+-- namespace utils
 
 ---
 -- Keeping references here
