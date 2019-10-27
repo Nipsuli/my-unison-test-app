@@ -1,41 +1,102 @@
+use .base
+use .utils
+-- namespace http.request
+
 -- unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
 --
--- type Request = {
---     method: HttpMethod,
---     path: base.Text,
---     headers: base.Map base.Text base.Text,
---     body: base.Optional base.Text
+-- type HttpRequest = {
+--   method: HttpMethod,
+--   path: Text,
+--   headers: Map Text Text,
+--   body: Optional Text
 -- }
 --
--- parseMethod : base.Text -> base.Optional HttpMethod
--- parseMethod methodText = case methodText of
---     "GET" -> base.Optional.Some GET
---     "HEAD" -> base.Optional.Some HEAD
---     "POST" -> base.Optional.Some POST
---     "PUT" -> base.Optional.Some PUT
---     "DELETE" -> base.Optional.Some DELETE
---     "CONNECT" -> base.Optional.Some CONNECT
---     "OPTIONS" -> base.Optional.Some OPTIONS
---     "TRACE" -> base.Optional.Some TRACE
---     "PATCH" -> base.Optional.Some PATCH
---     _ -> base.Optional.None
+-- mapMethod : Text -> Optional HttpMethod
+-- mapMethod methodText = case methodText of
+--   "GET" -> Optional.Some GET
+--   "HEAD" -> Optional.Some HEAD
+--   "POST" -> Optional.Some POST
+--   "PUT" -> Optional.Some PUT
+--   "DELETE" -> Optional.Some DELETE
+--   "CONNECT" -> Optional.Some CONNECT
+--   "OPTIONS" -> Optional.Some OPTIONS
+--   "TRACE" -> Optional.Some TRACE
+--   "PATCH" -> Optional.Some PATCH
+--   _ -> Optional.None
 --
 --
+-- parseMethod : Text -> Optional HttpMethod
+-- parseMethod requestHeader =
+--   case head (splitHeaderRows requestHeader) of
+--     Optional.Some t ->
+--       case head (splitText "\s" t) of
+--         Optional.Some m -> mapMethod m
+--         Optional.None -> Optional.None
+--     Optional.None -> Optional.None
 --
--- parseRequest : base.Text -> Request
--- parseRequest requestText =
---     h = base.Map ["foo"] ["bar"]
---     b = Some "body"
---     Request PUT "/foobar" h b
-
--- type Pt = {
---     x : base.Nat,
---     y : base.Nat
--- }
--- -- > Pt 1 2
-
--- main =
---     h = base.Map ["foo"] ["bar"]
---     b = Some "body"
---     r = Request PUT "/foobar" h b
---     Request.headers r
+-- -- > parseMethod "GET /index.html HTTP/1.1\nHost: www.example.com\nConnection: keep-alive\nCache-Control: max-age=0"
+--
+-- parsePath : Text -> Optional Text
+-- parsePath requestHeader =
+--   case head (splitHeaderRows requestHeader) of
+--     Optional.Some t ->
+--       case head (tail (splitText "\s" t)) of
+--         Optional.Some p -> Optional.Some p
+--         Optional.None -> Optional.None
+--     Optional.None -> Optional.None
+--
+-- -- > parsePath "GET /index.html HTTP/1.1\nHost: www.example.com\nConnection: keep-alive\nCache-Control: max-age=0"
+--
+-- headerRowsToTupleList : List Text -> List (Text, Text)
+-- headerRowsToTupleList hl =
+--   case head hl of
+--     Optional.None -> []
+--     Optional.Some h ->
+--       case splitHeaderKv h of
+--         [k, v] -> (k, v) +: headerRowsToTupleList (tail hl)
+--         _ -> headerRowsToTupleList (tail hl)
+--
+-- parseHeaders : Text -> Map Text Text
+-- parseHeaders requestHeader =
+--   headerRows = tail (splitHeaderRows requestHeader)
+--   Map.fromList (headerRowsToTupleList headerRows)
+--
+-- -- > parseHeaders "GET /index.html HTTP/1.1\nHost: www.example.com\nConnection: keep-alive\nCache-Control: max-age=0"
+-- -- > parseHeaders "GET /index.html HTTP/1.1"
+--
+-- splitHeaderKv : Text -> List Text
+-- splitHeaderKv = splitText ": "
+--
+-- splitHeaderRows : Text -> List Text
+-- splitHeaderRows = splitText "\n"
+--
+-- splitHeaderBody : Text -> List Text
+-- splitHeaderBody = splitText "\n\n"
+--
+-- parseRequestHeader : Text -> Optional Text
+-- parseRequestHeader requestText = head (splitHeaderBody requestText)
+--
+-- parseRequestBody : Text -> Optional Text
+-- parseRequestBody requestText =
+--   case head (tail (splitHeaderBody requestText)) of
+--     Optional.Some t -> Optional.Some t
+--     Optional.None -> Optional.None
+--
+-- -- TODO: should we show which part of the request was invalid? Or offer some validation function for that?
+-- textToRequest : Text -> Optional HttpRequest
+-- textToRequest requestText =
+--   case parseRequestHeader requestText of
+--     Optional.None -> Optional.None
+--     Optional.Some h ->
+--       case (parseMethod h, parsePath h) of
+--         (Optional.Some m, Optional.Some p) -> Optional.Some (HttpRequest m p (parseHeaders h) (parseRequestBody requestText))
+--         _ -> Optional.None
+--
+-- -- > textToRequest "GET /index.html HTTP/1.1\nHost: www.example.com\nConnection: keep-alive\nCache-Control: max-age=0"
+--
+-- -- TODO: add tests!
+--
+-- requestToText : HttpRequest -> Text
+-- requestToText r =
+--   -- TODO: implement me
+--   "GET /index.html HTTP/1.1\n"
