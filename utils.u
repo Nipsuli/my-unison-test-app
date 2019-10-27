@@ -1,0 +1,87 @@
+use .base
+use test.v1
+
+textToBytes : Text -> Bytes
+textToBytes t =
+  c = Text.toCharList t
+  n = List.map Char.toNat c
+  Bytes.fromList n
+
+bytesToText : Bytes -> Text
+bytesToText b =
+  n = Bytes.toList b
+  c = List.map Char.fromNat n
+  Text.fromCharList c
+
+test> tests.textToBytes.ex1 = run (expect ((Bytes.fromList [102, 111, 111]) == (textToBytes "foo")))
+test> tests.bytesToText.ex2 = run (expect ((bytesToText (Bytes.fromList [102, 111, 111])) == "foo"))
+test> tests.bytesToText.ex3 = run (expect ((bytesToText (textToBytes "foo")) == "foo"))
+
+
+textLength : Text -> Nat
+textLength t = List.size (Text.toCharList t)
+
+test> tests.textLength.ex1 = run (expect (textLength "" == 0))
+test> tests.textLength.ex2 = run (expect (textLength "foobar" == 6))
+test> tests.textLength.ex3 = run (expect (textLength "foobär" == 6))
+
+
+startsWith : Text -> Text -> Boolean
+startsWith needle haystack =
+  and ((textLength haystack) > (textLength needle))
+    ((Text.take (textLength needle) haystack) == needle)
+
+test> tests.startsWith.ex1 = run (expect (startsWith "foobar" "foo" == false))
+test> tests.startsWith.ex2 = run (expect (startsWith "foo" "foobar" == true))
+test> tests.startsWith.ex3 = run (expect (startsWith "bar" "foobar" == false))
+
+
+head : List t -> Optional t
+head l =
+  case List.uncons l of
+      Optional.Some (a, _) -> Optional.Some a
+      Optional.None -> None
+
+tail : List t -> List t
+tail l =
+  case List.uncons l of
+      Optional.Some (_, b) -> b
+      Optional.None -> []
+
+
+
+-- splitter : List Char -> List Char -> List Char -> List List Char
+-- splitter separator current rest =
+  -- case rest of
+    -- separator ++ _
+  -- separator is the separating pattern
+  -- current is the checked non matching characters
+  -- rest is the remaining characters
+  -- check if rest starts with separator
+  -- if it does return current ++ splitter separator [] (rest without the match part)
+  -- if it doesn't splitter separator (current ++ (head rest) ) tail rest
+
+
+--
+-- main =
+--   a = Text.toCharList "foo bar"
+--   case a of
+--     [?f, ?o, ?o] ++ _ -> "starts with foo"
+--     _ -> "does not start with foo"
+
+
+-- > main2
+
+-- main =
+--   a = "foo bar"
+--   case a of
+--     "foo" ++ b -> "starts with foo"
+--     _ -> "not starts with foo"
+
+-- > "foo" ++ "bar"
+
+--
+--
+-- splitText : Text -> Text -> List Text
+-- splitText text separator =
+--   ["foo", "bar"]

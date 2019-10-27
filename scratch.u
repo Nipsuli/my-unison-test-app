@@ -1,17 +1,6 @@
 host = base.Optional.Some (base.io.HostName "0.0.0.0")
 sn = base.io.ServiceName "8081"
 
-textToBytes : base.Text -> base.Bytes
-textToBytes t =
-  c = base.Text.toCharList t
-  n = base.List.map base.Char.toNat c
-  base.Bytes.fromList n
-
-bytesToText : base.Bytes -> base.Text
-bytesToText b =
-  n = base.Bytes.toList b
-  c = base.List.map base.Char.fromNat n
-  base.Text.fromCharList c
 
 handler : base.Text -> base.Text
 handler t =
