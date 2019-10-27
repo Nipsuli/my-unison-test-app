@@ -1,5 +1,7 @@
 -- playing around with socket, seems to work
 -- use .utils
+-- use .http.request
+
 
 -- host = base.Optional.Some (base.io.HostName "0.0.0.0")
 -- sn = base.io.ServiceName "8081"
