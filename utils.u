@@ -1,8 +1,36 @@
 use .base
 use test.v1
+-- utils namespace
 
 ---
 -- Keeping references here
+
+splitInner : List Char -> List Char -> List Char -> List (List Char)
+splitInner splitter rest carry =
+  case (rest, carry) of
+    ([], []) -> []
+    ([], c) -> [c]
+    _  -> spLen = List.size splitter
+          case (List.take spLen rest == splitter, carry) of
+            (true, []) -> splitInner splitter (List.drop spLen rest) []
+            (true, c) -> c +: splitInner splitter (List.drop spLen rest) []
+            _ -> case head rest of
+                   Optional.Some r -> splitInner splitter (tail rest) (carry :+ r)
+                   Optional.None -> [carry]
+
+splitText : Text -> Text -> List Text
+splitText splitter text =
+  sp = Text.toCharList splitter
+  rest = Text.toCharList text
+  map Text.fromCharList (splitInner sp rest [])
+
+test> tests.splitText.simpleSplit1 = run (expect ((splitText "\s" "foo bar") == ["foo", "bar"]))
+test> tests.splitText.simpleSplit2 = run (expect ((splitText "\s" "foo bar baz") == ["foo", "bar", "baz"]))
+test> tests.splitText.multiCharSplit = run (expect ((splitText "foo" "bazfoobar") == ["baz", "bar"]))
+test> tests.splitText.trailingSplitMark = run (expect ((splitText "\s" "foo ") == ["foo"]))
+test> tests.splitText.startingSplitMark = run (expect ((splitText "\s" " foo") == ["foo"]))
+test> tests.splitText.multipleSequentalSplitMarks = run (expect ((splitText "\s" "foo    bar") == ["foo", "bar"]))
+
 
 textToBytes : Text -> Bytes
 textToBytes t =
