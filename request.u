@@ -1,5 +1,5 @@
 use .base
-use .utils
+use .http.utils
 -- namespace http.request
 
 ---
@@ -7,6 +7,7 @@ use .utils
 
 unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
 
+-- TODO: implement queryParams
 type HttpRequest = {
   method: HttpMethod,
   path: Text,

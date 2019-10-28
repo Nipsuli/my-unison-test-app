@@ -1,8 +1,9 @@
 use .base
-use .utils
+use test.v1
+use .http.utils
 -- namespace http.response
--- TODO implement http response
 
+---
 type HttpResponse = {
   statusCode: Nat,
   headers: Map Text Text,
@@ -74,3 +75,49 @@ statusCodes = Map.fromList ([
   (509, "Bandwidth Limit Exceeded"),
   (510, "Not Extended511 Network Authentication Required")
 ])
+
+
+statusMessage : HttpResponse -> Text
+statusMessage response =
+  case Map.lookup (HttpResponse.statusCode response) statusCodes of
+    Optional.Some m -> " " ++ m
+    Optional.None -> ""
+
+statusLine : HttpResponse -> Text
+statusLine response =
+  "HTTP/1.1 " ++ Nat.toText (HttpResponse.statusCode response) ++ (statusMessage response)
+
+test> tests.statusMessage.knownMessage = run (expect ((statusLine (HttpResponse 200 Map.empty "")) == "HTTP/1.1 200 OK") )
+test> tests.statusMessage.unkownMessage = run (expect ((statusLine (HttpResponse 123 Map.empty "")) == "HTTP/1.1 123"))
+
+buildHeaderLines : List (Text, Text) -> List Text
+buildHeaderLines headerList =
+  case head headerList of
+    Optional.None -> []
+    Optional.Some (k, v) -> k ++ ": " ++ v +:  buildHeaderLines (tail headerList)
+
+test> tests.buildHeaderLines.listHasItems = run (expect ((buildHeaderLines [("foo", "bar"), ("a", "b")]) == ["foo: bar", "a: b"]))
+test> tests.buildHeaderLines.emptyList = run (expect ((buildHeaderLines []) == []))
+
+headerLines : HttpResponse -> Text
+headerLines response =
+  listJoin "\n" (buildHeaderLines (Map.toList (HttpResponse.headers response)))
+
+test> tests.headerLines.emptyHeaders = run (expect ((headerLines (HttpResponse 200 Map.empty "")) == ""))
+test> tests.headerLines.singleHeader = run (expect ((headerLines (HttpResponse 200 (Map ["foo"] ["bar"]) "")) == "foo: bar"))
+test> tests.headerLines.multipleHeaders = run (expect ((headerLines (HttpResponse 200 (Map ["foo", "a"] ["bar", "b"]) "")) == "foo: bar\na: b"))
+
+responseToText : HttpResponse -> Text
+responseToText response =
+  (statusLine response) ++ "\n" ++
+  (
+    case headerLines response of
+      "" -> ""
+      a -> a ++ "\n"
+  ) ++
+  "\n" ++
+  (HttpResponse.body response)
+
+test> tests.responseToText.onlyStatus = run (expect ((responseToText (HttpResponse 200 Map.empty "")) == "HTTP/1.1 200 OK\n\n"))
+test> tests.responseToText.statusAndHeaders = run (expect ((responseToText (HttpResponse 200 (Map ["Server"] ["my.server"]) "")) == "HTTP/1.1 200 OK\nServer: my.server\n\n"))
+test> tests.responseToText.statusHeadersAndBody = run (expect ((responseToText (HttpResponse 200 (Map ["Server"] ["my.server"]) "Hello!")) == "HTTP/1.1 200 OK\nServer: my.server\n\nHello!"))

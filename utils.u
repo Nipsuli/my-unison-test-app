@@ -1,9 +1,30 @@
 use .base
 use test.v1
--- namespace utils
+-- namespace http.utils
 
----
 -- Keeping references here
+---
+first : List t -> List t
+first = List.take 1
+
+head : List t -> Optional t
+head l =
+  case first l of
+      [a] -> Optional.Some a
+      [] -> None
+
+test> tests.head.ex1 = run (expect (head [] == Optional.None))
+test> tests.head.ex2 = run (expect (head ["foo"] == Optional.Some "foo"))
+test> tests.head.ex3 = run (expect (head ["bar", "foo"] == Optional.Some "bar"))
+
+
+tail : List t -> List t
+tail = List.drop 1
+
+test> tests.tail.ex1 = run (expect (tail [] == []))
+test> tests.tail.ex2 = run (expect (tail ["foo"] == []))
+test> tests.tail.ex3 = run (expect (tail ["bar", "foo"] == ["foo"]))
+test> tests.tail.ex4 = run (expect (tail ["bar", "foo", "baz"] == ["foo", "baz"]))
 
 splitInner : List Char -> List Char -> List Char -> List (List Char)
 splitInner splitter rest carry =
@@ -31,6 +52,14 @@ test> tests.splitText.trailingSplitMark = run (expect ((splitText "\s" "foo ") =
 test> tests.splitText.startingSplitMark = run (expect ((splitText "\s" " foo") == ["foo"]))
 test> tests.splitText.multipleSequentalSplitMarks = run (expect ((splitText "\s" "foo    bar") == ["foo", "bar"]))
 
+listJoin : Text -> List Text -> Text
+listJoin joiner l =
+  case List.uncons l of
+    Optional.None -> ""
+    Optional.Some (h, t) -> List.foldl (acc cur -> acc Text.++ joiner Text.++ cur) h t
+
+test> tests.listJoin.listHasItems = run (expect ((listJoin " " ["foo", "bar"]) == "foo bar"))
+test> tests.listJoin.emptyList = run (expect ((listJoin " " []) == ""))
 
 textToBytes : Text -> Bytes
 textToBytes t =
@@ -66,26 +95,3 @@ startsWith needle haystack =
 test> tests.startsWith.ex1 = run (expect (startsWith "foobar" "foo" == false))
 test> tests.startsWith.ex2 = run (expect (startsWith "foo" "foobar" == true))
 test> tests.startsWith.ex3 = run (expect (startsWith "bar" "foobar" == false))
-
-
-head : List t -> Optional t
-head l =
-  case List.uncons l of
-      Optional.Some (a, _) -> Optional.Some a
-      Optional.None -> None
-
-test> tests.head.ex1 = run (expect (head [] == Optional.None))
-test> tests.head.ex2 = run (expect (head ["foo"] == Optional.Some "foo"))
-test> tests.head.ex3 = run (expect (head ["bar", "foo"] == Optional.Some "bar"))
-
-
-tail : List t -> List t
-tail l =
-  case List.uncons l of
-      Optional.Some (_, b) -> b
-      Optional.None -> []
-
-test> tests.tail.ex1 = run (expect (tail [] == []))
-test> tests.tail.ex2 = run (expect (tail ["foo"] == []))
-test> tests.tail.ex3 = run (expect (tail ["bar", "foo"] == ["foo"]))
-test> tests.tail.ex4 = run (expect (tail ["bar", "foo", "baz"] == ["foo", "baz"]))
