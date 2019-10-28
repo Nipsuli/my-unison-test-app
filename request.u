@@ -1,8 +1,8 @@
+---
 use .base
 use .http.utils
 -- namespace http.request
 
----
 -- Keeping references here
 
 unique type HttpMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH

@@ -1,4 +1,40 @@
+---
 use .base
-use .utils
+use .http.request
+use .http.response
 -- namespace http.server
--- TODO: implement server
+
+-- Keeping references here
+
+listen : (HttpRequest -> HttpResponse) -> io.Socket ->{io.IO} ()
+listen handler sock =
+  io.printLine "listen"
+  s = io.accept sock
+  -- TODO How to manage different sizes of bodies?
+  t = io.receive s 1024
+  requestText = case t of
+    Optional.None -> ""
+    Optional.Some x -> bytesToText x
+
+  io.printLine requestText
+
+  -- TODO: some basic headers?
+  response = case textToRequest requestText of
+    Optional.None -> HttpResponse 400 Map.empty ""
+    Optional.Some r -> handler r
+
+  io.send s (textToBytes (responseToText response))
+  io.closeSocket s
+  listen handler sock
+
+
+simpleServer : (HttpRequest -> HttpResponse) -> Optional io.HostName -> Optional io.ServiceName -> '{io.IO} ()
+simpleServer handler host port = 'let
+  io.printLine "Starting server"
+  sn = case port of
+    Optional.None -> io.ServiceName "8081"
+    Optional.Some p -> p
+
+  sock = base.io.serverSocket host sn
+  io.listen sock
+  listen handler sock

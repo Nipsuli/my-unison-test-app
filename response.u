@@ -1,9 +1,11 @@
+---
 use .base
 use test.v1
 use .http.utils
 -- namespace http.response
 
----
+-- Keeping references here
+
 type HttpResponse = {
   statusCode: Nat,
   headers: Map Text Text,
@@ -121,3 +123,5 @@ responseToText response =
 test> tests.responseToText.onlyStatus = run (expect ((responseToText (HttpResponse 200 Map.empty "")) == "HTTP/1.1 200 OK\n\n"))
 test> tests.responseToText.statusAndHeaders = run (expect ((responseToText (HttpResponse 200 (Map ["Server"] ["my.server"]) "")) == "HTTP/1.1 200 OK\nServer: my.server\n\n"))
 test> tests.responseToText.statusHeadersAndBody = run (expect ((responseToText (HttpResponse 200 (Map ["Server"] ["my.server"]) "Hello!")) == "HTTP/1.1 200 OK\nServer: my.server\n\nHello!"))
+
+-- TODO: textToResponse
